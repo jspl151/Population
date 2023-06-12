@@ -1,31 +1,44 @@
+const { pick } = require('@laufire/utils/collection');
+const { Console } = require('console');
 const csvToJson = require('csvtojson');
 
 const getDifference = (population) => population.estimate2022 - population.estimate2011
 
-const getPercentage = (population) => 
-getDifference(population)/(population.estimate2011)*100
+const getPercentage = (population, difference) =>
+  difference / (population.estimate2011) * 100
 
-const addFields = (population) => ({
-  ...population,
-  difference : getDifference(population),
-  percentage : getPercentage(population)
-});
+const getPopulationList = (population) => {
+  const difference = getDifference(population);
 
-const getMinMax = (population) => {
- // console.log(data);
-const value = population.map(population=>population.estimate2022);
-  console.log(value);
-return ({
-  maxValue : (Math.max(...value)),
-  minValue : (Math.min(...value))
-})
+  return ({
+    ...population,
+    difference: difference,
+    percentage: getPercentage(population, difference)
+  });
+
+}
+
+const getMinMax = (populations) => {
+  
+  const value = populations.map(population => population.estimate2022);
+  const maxValue = Math.max(...value) ;
+  const minValue = Math.min(...value) ;
+  
+  return ({
+    maxValue: maxValue,
+    minValue: minValue,
+    maxValueState : populations.find((state)=> Number(state.estimate2022) === maxValue).state,
+    minValueState : populations.find((state)=> Number(state.estimate2022) === minValue).state,
+  })
 }
 
 const main = async () => {
-const data = await csvToJson().fromFile('./populationData.csv');
-const listOfPopulation = data.map(addFields);
-console.log(listOfPopulation);
-console.log(getMinMax(data));
+  const data = await csvToJson().fromFile('./populationData.csv');
+  const populationList = data.map(getPopulationList);
+  console.log(populationList);
+  const minMaxValue = getMinMax(data);
+  console.log(getMinMax(data));
+
 };
 
 main();
