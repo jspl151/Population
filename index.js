@@ -19,10 +19,8 @@ const getPopulationList = (population) => {
 }
 
 const getMinMax = (populations) => {
-  
-  const value = populations.map(population => population.estimate2022);
-  const maxValue = Math.max(...value) ;
-  const minValue = Math.min(...value) ;
+  const maxValue = Math.max(...pick(populations, "estimate2022"));
+  const minValue = Math.min(...pick(populations, "estimate2022"));
   
   return ({
     maxValue: maxValue,
