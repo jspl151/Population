@@ -1,4 +1,4 @@
-const { pick } = require('@laufire/utils/collection');
+const { pick , reduce} = require('@laufire/utils/collection');
 const { Console } = require('console');
 const csvToJson = require('csvtojson');
 
@@ -19,24 +19,27 @@ const getPopulationList = (population) => {
 }
 
 const getMinMax = (populations) => {
+
+  const valueOf = pick(populations, "estimate2022");
   const maxValue = Math.max(...pick(populations, "estimate2022"));
   const minValue = Math.min(...pick(populations, "estimate2022"));
   
   return ({
-    maxValue: maxValue,
-    minValue: minValue,
-    maxValueState : populations.find((state)=> Number(state.estimate2022) === maxValue).state,
-    minValueState : populations.find((state)=> Number(state.estimate2022) === minValue).state,
-  })
+    maxValue2022: maxValue,
+    minValue2022: minValue,
+    maxValueState2022 : populations.find((state)=> Number(state.estimate2022) === maxValue).state,
+    minValueState2022 : populations.find((state)=> Number(state.estimate2022) === minValue).state,
+    totalPopulation2022 : reduce(valueOf,(acc,cur) => acc+Number(cur),0)
+  
+  });
 }
 
 const main = async () => {
   const data = await csvToJson().fromFile('./populationData.csv');
   const populationList = data.map(getPopulationList);
-  console.log(populationList);
-  const minMaxValue = getMinMax(data);
-  console.log(getMinMax(data));
-
+  console.table(populationList);
+  console.log(getMinMax(data)); 
+  
 };
 
 main();
