@@ -12,24 +12,26 @@ const getPopulationList = (population) => {
 
   return ({
     ...population,
-    difference: difference,
-    percentage: getPercentage(population, difference)
+    difference: difference.toFixed(2),
+    percentage: getPercentage(population, difference).toFixed(2)
   });
 
 }
 
+const getState = (populations , minMaxValues) =>  populations.find((state)=> Number(state.estimate2022) === minMaxValues).state;
+  
 const getMinMax = (populations) => {
 
-  const valueOf = pick(populations, "estimate2022");
+  const valueOfEstimate2022 = pick(populations, "estimate2022");
   const maxValue = Math.max(...pick(populations, "estimate2022"));
   const minValue = Math.min(...pick(populations, "estimate2022"));
   
   return ({
     maxValue2022: maxValue,
     minValue2022: minValue,
-    maxValueState2022 : populations.find((state)=> Number(state.estimate2022) === maxValue).state,
-    minValueState2022 : populations.find((state)=> Number(state.estimate2022) === minValue).state,
-    totalPopulation2022 : reduce(valueOf,(acc,cur) => acc+Number(cur),0)
+    maxValueState2022 : getState(populations,maxValue),
+    minValueState2022 : getState(populations,minValue),
+    totalPopulation2022 : reduce(valueOfEstimate2022,(acc,cur) => acc+Number(cur),0)
   
   });
 }
@@ -37,8 +39,9 @@ const getMinMax = (populations) => {
 const main = async () => {
   const data = await csvToJson().fromFile('./populationData.csv');
   const populationList = data.map(getPopulationList);
+  const minMaxValues = getMinMax(data);
   console.table(populationList);
-  console.log(getMinMax(data)); 
+  console.log(minMaxValues); 
   
 };
 
